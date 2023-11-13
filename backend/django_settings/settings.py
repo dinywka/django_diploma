@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_app',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -51,10 +55,18 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'django_settings.urls'
 
+GRAPPELLI_ADMIN_TITLE = "Django app"
+
+#TODO: додедать!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CORS_ALLOWED_ORIGINS = [
+    # "http://localhost:3000",  # Замените на адрес вашего фронтенда
+    # "https://yourdomain.com",  # Замените на ваш домен
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,10 +87,18 @@ WSGI_APPLICATION = 'django_settings.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'diplomadb',
+        'USER': 'postgres',
+        'PASSWORD': '28031989',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
+# settings.py
+
+AUTH_USER_MODEL = 'django_app.CustomUser'
 
 
 # Password validation
