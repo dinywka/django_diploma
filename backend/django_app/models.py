@@ -1,12 +1,88 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
+from django.utils.timezone import now
+from django.contrib.auth import get_user_model
 
 
-class CustomUser(AbstractUser):
-    job_title = models.CharField(max_length=100)
-    company = models.CharField(max_length=100, blank=True, null=True)
-    start_date = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=False)
+class UserProfile(models.Model):
+    """
+    Модель, которая содержит расширение для стандартной модели пользователя веб-платформы
+    """
+
+    user = models.OneToOneField(
+        editable=True,
+        blank=True,
+        null=True,
+        default=None,
+        verbose_name="Модель пользователя",
+        help_text='<small class="text-muted">Тут лежит "ссылка" на модель пользователя</small><hr><br>',
+        to=User,
+        on_delete=models.CASCADE,
+        related_name="profile",  # user.profile
+    )
+    avatar = models.ImageField(verbose_name="Аватарка", upload_to="users/avatars", default="https://vk-wiki.ru/wp-content/uploads/2019/04/male-user-profile-picture.png", null=True, blank=True)
+    job_title = models.CharField(max_length=200, blank=True, null=True, verbose_name="Должность")
+    started_date = models.DateTimeField(default=now, verbose_name="Дата назначения")
 
 
+    class Meta:
+        """Вспомогательный класс"""
 
+        app_label = "django_app"
+        ordering = ("-user", "avatar")
+        verbose_name = "Профиль пользователя"
+        verbose_name_plural = "Профили пользователей"
+
+    def __str__(self):
+        return f"<UserProfile {self.user.username}>"
+
+class Ideas(models.Model):
+    title = models.CharField(max_length=300)
+    description = models.TextField(max_length=2000)
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "django_app"
+        ordering = ("date_created", )
+        verbose_name = "Идея по улучшению бизнеса"
+        verbose_name_plural = "Идеи по улучшению бизнеса"
+
+        def __str__(self):
+            return f"<Ideas {self.Ideas.title}>"
+
+class IdeaComments(models.Model):
+    """Комментарии к идеям"""
+
+    idea = models.ForeignKey(to=Ideas, verbose_name="К какой идее", max_length=200, on_delete=models.CASCADE)
+    author = models.ForeignKey(to=User, verbose_name="Автор", max_length=200, on_delete=models.CASCADE)
+    text = models.TextField("Текст комментария", default="")
+    date_time = models.DateTimeField("Дата и время создания", default=now)
+
+    class Meta:
+        app_label = "django_app"
+        ordering = ("-date_time", "idea")
+        verbose_name = "Комментарий к посту"
+        verbose_name_plural = "Комментарии к постам"
+
+    def __str__(self):
+        return f"{self.date_time} {self.author.username} {self.ideas.title} {self.text[:20]}"
+
+
+class IdeaRatings(models.Model):
+    author = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    idea = models.ForeignKey(to=Ideas, on_delete=models.CASCADE)
+    status = models.BooleanField(default=False)
+
+    class Meta:
+        app_label = "django_app"
+        ordering = ("-idea", "author")
+        verbose_name = "Рейтинг к идее"
+        verbose_name_plural = "Рейтинги к идеям"
+
+    def __str__(self):
+        if self.status:
+            like = "ЛАЙК"
+        else:
+            like = "ДИЗЛАЙК"
+        return f"{self.ideas.title} {self.author.username} {like}"

@@ -21,66 +21,47 @@
     <div class="flex flex-1 items-center justify-end md:justify-between">
       <nav aria-label="Global" class="hidden md:block">
         <ul class="flex items-center gap-6 text-sm">
-          <li>
-            <a class="text-gray-500 transition hover:text-gray-500/75" href="">
-              О нас
+            <li>
+            <a class="text-gray-500 transition hover:text-gray-500/75" href="{% url "ideas" %}">
+              Идеи
             </a>
           </li>
-
-
-          <li>
-            <a class="text-gray-500 transition hover:text-gray-500/75" href="">
-                Поиск
-            </a>
-          </li>
-
-          <li>
-            <a class="text-gray-500 transition hover:text-gray-500/75" href="">
-              Все посты
-            </a>
-          </li>
-
         </ul>
       </nav>
 
-<!--        {% if request.user.is_authenticated %}-->
+        {% if request.user.is_authenticated %}
         <div class="flex items-center gap-4">
         <div class="sm:flex sm:gap-4">
+<!---->
             <a
             class="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-teal-600 transition hover:text-teal-600/75 sm:block"
-            href=""
-          >
-            Загрузить
-          </a>
-            <a
-            class="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-teal-600 transition hover:text-teal-600/75 sm:block"
-            href=""
+            href="{% url "profile" %}"
           >
             Профиль
           </a>
           <a
             class="block rounded-md bg-teal-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-teal-700"
-            href=""
+            href="{% url "logout" %}"
           >
-<!--            Выйти ({{ request.user.username }})-->
+            Выйти ({{ request.user.username }})
           </a>
 
-<!--{% else %}-->
+{% else %}
       <div class="flex items-center gap-4">
         <div class="sm:flex sm:gap-4">
           <a
             class="block rounded-md bg-teal-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-teal-700"
-            href=""
+            href="/login"
           >
             Войти
           </a>
             <a
             class="hidden rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-teal-600 transition hover:text-teal-600/75 sm:block"
-            href=""
+            href="{%  url "register" %}"
           >
             Зарегестрироваться
           </a>
-<!--    {% endif %}-->
+    {% endif %}
 
         </div>
 
