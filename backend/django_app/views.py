@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.core.cache import caches
 from django.core.exceptions import PermissionDenied
@@ -159,6 +160,7 @@ def idea_comment_create(request: HttpRequest, pk: str) -> HttpResponse:
     return redirect(reverse("idea_detail", args=(pk,)))
 
 def idea_rating(request: HttpRequest, pk: str, is_like: str) -> HttpResponse:
+    """Рейтинг идеи"""
     idea = models.Ideas.objects.get(id=int(pk))
     is_like = True if str(is_like).lower().strip() == "лайк" else False
 
@@ -176,3 +178,17 @@ def idea_rating(request: HttpRequest, pk: str, is_like: str) -> HttpResponse:
             rating.save()
 
     return redirect(reverse("idea_detail", args=(pk,)))
+
+def rooms(request):
+    return render(request, "django_app/rooms.html", context={"rooms": models.Room.objects.all()})
+
+
+@login_required
+def room(request, slug):
+    room_obj = models.Room.objects.get(slug=slug)
+    context = {"room": room_obj, "messages": models.Message.objects.filter(room=room_obj)[:25]}
+    return render(
+        request,
+        "django_app/room.html",
+        context=context
+    )

@@ -1,0 +1,13 @@
+{% extends "components/base.html" %}
+{% load static %}
+{% block main %}
+<ul>
+        {% for room in rooms %}
+            <li>
+                <a href="/{{room.slug}}">{{room.name}}</a>
+            </li>
+        {% empty %}
+            <li>ни одной комнаты не создано!</li>
+        {% endfor %}
+    </ul>
+{% endblock main %}

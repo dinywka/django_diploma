@@ -32,6 +32,8 @@ admin.site.register(models.UserProfile, UserProfileAdmin)
 admin.site.register(models.Ideas)
 admin.site.register(models.IdeaComments)
 admin.site.register(models.IdeaRatings)
+admin.site.register(models.Room)
+admin.site.register(models.Message)
 
 # class PostAdmin(admin.ModelAdmin):
 #     """
