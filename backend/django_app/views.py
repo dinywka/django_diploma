@@ -11,6 +11,10 @@ from django.urls import reverse
 import re
 from django.contrib.auth.models import User
 from . import models
+import requests
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view
 
 RamCache = caches["default"]
 
@@ -192,3 +196,16 @@ def room(request, slug):
         "django_app/room.html",
         context=context
     )
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (HTML, like Gecko) '
+                  'Chrome/102.0.0.0 Safari/537.36'
+}
+
+def news(request):
+    data1 = requests.get("https://fakenews.squirro.com/news/sport", headers=headers).json()
+    _news = data1["news"]
+    data2 = []
+    for new in _news:
+        data2.append({"id": new["id"], "title": new["headline"]})
+    return render(request, 'django_app/news.html', {'data2':data2})
