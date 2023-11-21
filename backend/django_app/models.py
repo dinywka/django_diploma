@@ -87,6 +87,14 @@ class IdeaRatings(models.Model):
             like = "ДИЗЛАЙК"
         return f"{self.ideas.title} {self.author.username} {like}"
 
+class Product(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
 class Room(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
@@ -103,3 +111,5 @@ class Message(models.Model):
 
     class Meta:
         ordering = ('-date_added',)
+
+

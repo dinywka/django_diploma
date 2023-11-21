@@ -36,6 +36,11 @@
               Новости
             </a>
           </li>
+            <li>
+            <a class="text-gray-500 transition hover:text-gray-500/75" href="{% url 'product-list-create' %}">
+              Склад
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -43,6 +48,10 @@
         <div class="flex items-center gap-4">
         <div class="sm:flex sm:gap-4">
 <!---->
+            <form method="post" action="{% url 'send_email' %}">
+  {% csrf_token %}
+  <button type="submit">Send Email</button>
+</form>
             <a
             class="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-teal-600 transition hover:text-teal-600/75 sm:block"
             href="{% url "profile" %}"

@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from .views import ProductListCreateView, ProductRetrieveUpdateDestroyView
+
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -16,6 +18,11 @@ urlpatterns = [
     path("idea/comment/create/<str:pk>/", views.idea_comment_create, name="idea_comment_create"),
     path("idea/rating/<str:pk>/<str:is_like>/", views.idea_rating, name="idea_rating"),
     path('news/', views.news, name="news"),
+
+    path('products/', ProductListCreateView.as_view(), name='product-list-create'),
+    path('products/<int:pk>/', ProductRetrieveUpdateDestroyView.as_view(), name='product-retrieve-update-destroy'),
+
+    path('send_email/', views.send_email, name='send_email'),
 
     # TODO:needs to be the last!!!
     path("rooms/", views.rooms, name="rooms"),

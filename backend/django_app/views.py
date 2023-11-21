@@ -12,9 +12,14 @@ import re
 from django.contrib.auth.models import User
 from . import models
 import requests
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.decorators import api_view
+from django.core.cache import cache
+import requests
+from .serializers import ProductSerializer
+from rest_framework import generics, status
+from .tasks import generate_and_email_pdf
 
 RamCache = caches["default"]
 
@@ -203,9 +208,32 @@ headers = {
 }
 
 def news(request):
-    data1 = requests.get("https://fakenews.squirro.com/news/sport", headers=headers).json()
-    _news = data1["news"]
-    data2 = []
-    for new in _news:
-        data2.append({"id": new["id"], "title": new["headline"]})
-    return render(request, 'django_app/news.html', {'data2':data2})
+    """Вывод новостей с использованием кеша"""
+    cached_data = cache.get('news_data')
+    if cached_data is not None:
+        data2 = cached_data
+    else:
+        data1 = requests.get("https://fakenews.squirro.com/news/sport", headers=headers).json()
+        _news = data1.get("news", [])
+        data2 = [{"id": new["id"], "title": new["headline"]} for new in _news]
+        cache.set('news_data', data2, timeout=3600)
+
+    return render(request, 'django_app/news.html', {'data2': data2})
+
+class ProductListCreateView(generics.ListCreateAPIView):
+    queryset = models.Product.objects.all()
+    serializer_class = ProductSerializer
+
+class ProductRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Product.objects.all()
+    serializer_class = ProductSerializer
+
+    def get_object(self):
+        pk = self.kwargs.get('pk')
+        return get_object_or_404(models.Product, pk=pk)
+
+def send_email(request):
+    if request.method == 'POST':
+        generate_and_email_pdf.delay()
+
+    return render(request, 'django_app/home.html')
