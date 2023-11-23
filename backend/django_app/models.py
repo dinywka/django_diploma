@@ -112,4 +112,18 @@ class Message(models.Model):
     class Meta:
         ordering = ('-date_added',)
 
+class Vacancy(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    salary = models.IntegerField(null=True, blank=True)
+
+class Resume(models.Model):
+    name = models.CharField(max_length=255)
+    age = models.IntegerField(null=True, blank=True)
+    education = models.CharField(max_length=255)
+    skills = models.TextField()
+
+
+
+
 

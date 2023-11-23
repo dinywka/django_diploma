@@ -35,6 +35,7 @@ admin.site.register(models.IdeaRatings)
 admin.site.register(models.Room)
 admin.site.register(models.Message)
 admin.site.register(models.Product)
+admin.site.register(models.Vacancy)
 
 # class PostAdmin(admin.ModelAdmin):
 #     """

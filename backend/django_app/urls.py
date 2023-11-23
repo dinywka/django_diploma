@@ -19,6 +19,12 @@ urlpatterns = [
     path("idea/rating/<str:pk>/<str:is_like>/", views.idea_rating, name="idea_rating"),
     path('news/', views.news, name="news"),
 
+    path('vacancy/', views.vacancy, name='vacancy'),
+    path('vacancy/list/', views.vacancy_list, name='vacancy_list'),
+    path('vacancy/detail/<str:pk>/', views.vacancy_detail, name='vacancy_detail'),
+    path("vacancy/delete/<str:pk>/", views.vacancy_delete, name="vacancy_delete"),
+    path("vacancy/update/<str:pk>/", views.vacancy_update, name="vacancy_update"),
+
     path('products/', ProductListCreateView.as_view(), name='product-list-create'),
     path('products/<int:pk>/', ProductRetrieveUpdateDestroyView.as_view(), name='product-retrieve-update-destroy'),
 

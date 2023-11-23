@@ -237,3 +237,90 @@ def send_email(request):
         generate_and_email_pdf.delay()
 
     return render(request, 'django_app/home.html')
+
+def vacancy(request):
+    """Подача и просмотр идей для улучшения бизнеса"""
+    if request.method == 'GET':
+        return render(request, 'django_app/vacancy.html')
+    elif request.method == 'POST':
+        title = request.POST.get('title', None)
+        description = request.POST.get('description', None)
+        salary = request.POST.get('salary', None)
+        models.Vacancy.objects.create(title=title, description=description, salary=salary)
+        return redirect(reverse("vacancy_list"))
+    else:
+        raise ValueError("Invalid method")
+
+def vacancy_list(request: HttpRequest) -> HttpResponse:
+    """Отображение списка идей с пагинацией"""
+
+    vacancy = models.Vacancy.objects.all()
+    selected_page = request.GET.get(key="page", default=1)
+    limit_post_by_page = 3
+    paginator = Paginator(vacancy, limit_post_by_page)
+    current_page = paginator.get_page(selected_page)
+    return render(request, "django_app/vacancy_list.html", context={"current_page": current_page})
+
+def vacancy_detail(request, pk:str):
+    """Отображение детальной информации идеи"""
+    vacancy = RamCache.get(f"vacancy_detail_{pk}")
+    if vacancy is None:
+        vacancy = models.Vacancy.objects.get(id=pk)
+        RamCache.set(f"vacancy_detail_{pk}", vacancy, timeout=30)
+    return render(request, "django_app/vacancy_detail.html",
+                  context={"vacancy": vacancy, "is_detail_view": True})
+
+def vacancy_delete(request, pk):
+    """Удаление идеи"""
+    if request.method != "GET":
+        raise ValueError("Invalid method")
+
+    vacancy = models.Vacancy.objects.get(id=int(pk))
+    vacancy.delete()
+    return redirect(reverse("vacancy_list"))
+
+
+def vacancy_update(request, pk: str):
+    """Обновление существующей идеи"""
+
+    vacancy = get_object_or_404(models.Vacancy, id=int(pk))
+    if request.method == "GET":
+        return render(request, "django_app/vacancy_update.html", {'vacancy': vacancy})
+
+    elif request.method == "POST":
+        vacancy.title = request.POST.get("title", vacancy.title)
+        vacancy.description = request.POST.get("description", vacancy.description)
+        vacancy.salary = request.POST.get("salary", vacancy.salary)
+        vacancy.save()
+        return redirect(reverse("vacancy_list"))
+
+    else:
+        raise ValueError("Invalid method")
+
+# views.py
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.core import serializers
+import requests
+
+@csrf_exempt
+@require_POST
+def send_product_list(chat_id):
+    products = models.Product.objects.all()
+    product_data = serializers.serialize('json', products)
+
+    response = requests.post(
+        url=f"https://api.telegram.org/bot6481369847:AAGh4KSCeGFhZbW0Ny041ZGP_9_ygS-Rjjk/sendMessage",
+        json={"chat_id": chat_id, "text": product_data}
+    )
+
+    if response.status_code not in (200, 201):
+        print("Error")
+    else:
+        print(f"Product list sent successfully to user")
+
+    return HttpResponse(status=200)
+
+
+
