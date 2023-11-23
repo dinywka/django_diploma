@@ -6,20 +6,17 @@ from django.core.cache import caches
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 import re
 from django.contrib.auth.models import User
 from . import models
-import requests
 from django.shortcuts import render, get_object_or_404, redirect
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from django.core.cache import cache
 import requests
 from .serializers import ProductSerializer
-from rest_framework import generics, status
+from rest_framework import generics
 from .tasks import generate_and_email_pdf
+from django.contrib import messages
 
 RamCache = caches["default"]
 
@@ -296,6 +293,54 @@ def vacancy_update(request, pk: str):
 
     else:
         raise ValueError("Invalid method")
+
+def resume(request):
+    """Подача и просмотр идей для улучшения бизнеса"""
+    if request.method == 'GET':
+        return render(request, 'django_app/resume.html')
+    elif request.method == 'POST':
+        name = request.POST.get('name', None)
+        age = request.POST.get('age', None)
+        education = request.POST.get('education', None)
+        skills = request.POST.get('skills', None)
+        models.Resume.objects.create(name=name, age=age, education=education, skills=skills)
+        return redirect(reverse("resume_list"))
+    else:
+        raise ValueError("Invalid method")
+
+def resume_list(request: HttpRequest) -> HttpResponse:
+    """Отображение списка идей с пагинацией"""
+
+    resume = models.Resume.objects.all()
+    selected_page = request.GET.get(key="page", default=1)
+    limit_post_by_page = 3
+    paginator = Paginator(resume, limit_post_by_page)
+    current_page = paginator.get_page(selected_page)
+    return render(request, "django_app/resume_list.html", context={"current_page": current_page})
+
+def add_hr_rating(request, pk):
+    if request.method == 'POST':
+        new_rating = request.POST.get('rating')
+        new_comment = request.POST.get('comment')
+
+        # Получаем резюме по ID
+        resume = models.Resume.objects.get(id=pk)
+
+        # Обновляем рейтинг и комментарий
+        resume.update_hr_rating(new_rating, new_comment)
+
+        messages.success(request, 'Рейтинг и комментарий успешно добавлены.')
+
+        # Перенаправляем пользователя на страницу резюме
+        return redirect('resume_detail', pk=pk)
+
+def resume_detail(request, pk):
+    resume = RamCache.get(f"resume_detail_{pk}")
+    if resume is None:
+        resume = models.Resume.objects.get(id=pk)
+        RamCache.set(f"resume_detail_{pk}", resume, timeout=30)
+
+    return render(request, "django_app/resume_detail.html", context={"resume": resume, "is_detail_view": True})
 
 # views.py
 from django.http import HttpResponse

@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.timezone import now
@@ -122,6 +123,19 @@ class Resume(models.Model):
     age = models.IntegerField(null=True, blank=True)
     education = models.CharField(max_length=255)
     skills = models.TextField()
+    hr_rating = models.IntegerField(
+        validators=[
+            MinValueValidator(1, message='Рейтинг не может быть меньше 1.'),
+            MaxValueValidator(10, message='Рейтинг не может быть больше 10.')
+        ],
+        help_text='Введите рейтинг от 1 до 10.', blank=True, default=0
+    )
+    hr_comment = models.CharField(max_length=500, default='no comment')
+
+    def update_hr_rating(self, new_rating, new_comment):
+        self.hr_rating = new_rating
+        self.hr_comment = new_comment
+        self.save()
 
 
 

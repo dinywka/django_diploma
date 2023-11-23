@@ -1,0 +1,42 @@
+{% extends "components/base.html" %}
+{% load static %}
+{% block main %}
+
+<div class="post-list grid grid-cols-1 sm:grid-cols-2 gap-8 place-items-center mx-auto max-w-7xl">
+{% for resume in current_page %}
+  <article class="flex bg-white transition hover:shadow-xl">
+    <div class="flex flex-1 flex-col justify-between">
+      <div class="border-s border-gray-900/10 p-4 sm:border-l-transparent sm:p-6">
+        <a href="#">
+          <h3 class="font-bold uppercase text-gray-900">
+              {{ resume.name}}
+          </h3>
+        </a>
+
+        <p class="mt-2 line-clamp-3 text-sm/relaxed text-gray-700">
+            {{ resume.age }}
+        </p>
+          <p class="mt-2 line-clamp-3 text-sm/relaxed text-gray-700">
+            {{ resume.education }}
+        </p>
+          <p class="mt-2 line-clamp-3 text-sm/relaxed text-gray-700">
+            {{ resume.skills }}
+        </p>
+      </div>
+
+      <div class="sm:flex sm:items-end sm:justify-end">
+        <a
+          href="{% url 'resume_detail' resume.id %}"
+          class="block bg-yellow-300 px-5 py-3 text-center text-xs font-bold uppercase text-gray-900 transition hover:bg-yellow-400"
+        >
+          Детально
+        </a>
+      </div>
+    </div>
+  </article>
+{% endfor %}
+</div>
+
+{% include "components/paginator.html" %}
+
+{% endblock main %}

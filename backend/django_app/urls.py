@@ -25,6 +25,11 @@ urlpatterns = [
     path("vacancy/delete/<str:pk>/", views.vacancy_delete, name="vacancy_delete"),
     path("vacancy/update/<str:pk>/", views.vacancy_update, name="vacancy_update"),
 
+    path('resume/', views.resume, name='resume'),
+    path('resume/list/', views.resume_list, name='resume_list'),
+    path('resume/detail/<str:pk>/', views.resume_detail, name='resume_detail'),
+    path('add_hr_rating/<str:pk>/', views.add_hr_rating, name='add_hr_rating'),
+
     path('products/', ProductListCreateView.as_view(), name='product-list-create'),
     path('products/<int:pk>/', ProductRetrieveUpdateDestroyView.as_view(), name='product-retrieve-update-destroy'),
 

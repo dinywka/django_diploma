@@ -10,7 +10,7 @@ def generate_and_email_pdf():
     generate_pdf(buffer)
 
     connection = get_connection('django.core.mail.backends.smtp.EmailBackend')
-    connection.open()  # Manually open the connection
+    connection.open()
 
     email = EmailMessage(
         'Daily Product Report',
@@ -22,7 +22,7 @@ def generate_and_email_pdf():
 
     email.attach(filename='daily_product_report.pdf', content=buffer.getvalue(), mimetype='application/pdf')
     email.send()
-    connection.close()  # Manually close the connection
+    connection.close()
 
 def generate_pdf(buffer):
     p = canvas.Canvas(buffer)
@@ -31,4 +31,4 @@ def generate_pdf(buffer):
         p.drawString(100, 100, f"Product: {product.name}, Price: {product.price}")
     p.showPage()
     p.save()
-    buffer.seek(0)  # Reset buffer position to the beginning
+    buffer.seek(0)
