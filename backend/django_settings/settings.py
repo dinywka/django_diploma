@@ -59,6 +59,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -73,9 +74,11 @@ GRAPPELLI_ADMIN_TITLE = "Django app"
 
 #TODO: додедать!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CORS_ALLOWED_ORIGINS = [
-    # "http://localhost:3000",  # Замените на адрес вашего фронтенда
+    "http://localhost:3000",  # Замените на адрес вашего фронтенда
     # "https://yourdomain.com",  # Замените на ваш домен
 ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
     {
@@ -135,6 +138,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -151,7 +161,26 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
+if DEBUG:
+    # режиме разработки: django "отдаёт" статику сам
+    STATICFILES_DIRS = [
+        Path(BASE_DIR / "static"),
+        Path(BASE_DIR / "static_external"),
+    ]
+else:
+    # режиме production(debug==false): nginx "отдаёт" статику
+    # collectstatic
+    STATIC_ROOT = Path(BASE_DIR / "static")
+    STATICFILES_DIRS = [
+        Path(BASE_DIR / "static_external"),
+    ]
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = "static/media"
+
+# STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static_external')
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'

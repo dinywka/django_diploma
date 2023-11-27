@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.cache import caches
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 import re
 from django.contrib.auth.models import User
@@ -66,22 +66,49 @@ def login_f(request: HttpRequest) -> HttpResponse:
         password = request.POST.get("password")
         user = authenticate(request, username=email, password=password)
         if user is None:
-            return render(request, "blog_app/login.html", {"error": "Некорректный email или пароль"})
+            return render(request, "django_app/login.html", {"error": "Некорректный email или пароль"})
         login(request, user)
         return redirect(reverse("home"))
     else:
         raise ValueError("Invalid method")
+# from django.contrib.auth import authenticate, login
+# from rest_framework.decorators import api_view, permission_classes
+# from rest_framework.response import Response
+# from rest_framework.authtoken.models import Token
+# from rest_framework.permissions import AllowAny
+#
+#
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def login_f(request):
+#     if request.method == "POST":
+#         username = request.data.get("username")
+#         password = request.data.get("password")
+#
+#         user = authenticate(request, username=username, password=password)
+#
+#         if user is not None:
+#             login(request, user)
+#
+#             token, created = Token.objects.get_or_create(user=user)
+#
+#             return Response({'token': token.key, 'username': user.username})
+#
+#         return Response({'error': 'Логин или пароль неверные!'}, status=400)
+#
+#     return Response({'error': 'Метод не поддерживается!'}, status=400)
 
-
+@login_required
 def logout_f(request: HttpRequest) -> HttpResponse:
     """Выход из аккаунта"""
     logout(request)
     return redirect(reverse('login'))
 
+@login_required
 def profile_f(request: HttpRequest) -> HttpResponse:
     """Профиль пользователя"""
     return render(request, 'django_app/profile.html')
-
+@login_required
 def ideas(request):
     """Подача и просмотр идей для улучшения бизнеса"""
     if request.method == 'GET':
@@ -94,6 +121,7 @@ def ideas(request):
     else:
         raise ValueError("Invalid method")
 
+@login_required
 def ideas_list(request: HttpRequest) -> HttpResponse:
     """Отображение списка идей с пагинацией"""
 
@@ -104,6 +132,7 @@ def ideas_list(request: HttpRequest) -> HttpResponse:
     current_page = paginator.get_page(selected_page)
     return render(request, "django_app/ideas_list.html", context={"current_page": current_page})
 
+@login_required
 def idea_detail(request, pk:str):
     """Отображение детальной информации идеи"""
     idea = RamCache.get(f"idea_detail_{pk}")
@@ -122,6 +151,7 @@ def idea_detail(request, pk:str):
     return render(request, "django_app/idea_detail.html",
                   context={"idea": idea, "comments": comments, "ratings": ratings, "is_detail_view": True})
 
+@login_required
 def idea_delete(request, pk):
     """Удаление идеи"""
     if request.method != "GET":
@@ -135,7 +165,7 @@ def idea_delete(request, pk):
     idea.delete()
     return redirect(reverse("ideas_list"))
 
-
+@login_required
 def idea_update(request, pk: str):
     """Обновление существующей идеи"""
 
@@ -156,6 +186,7 @@ def idea_update(request, pk: str):
         else:
             raise ValueError("Invalid method")
 
+@login_required
 def idea_comment_create(request: HttpRequest, pk: str) -> HttpResponse:
     """Создание комментария."""
 
@@ -165,6 +196,7 @@ def idea_comment_create(request: HttpRequest, pk: str) -> HttpResponse:
 
     return redirect(reverse("idea_detail", args=(pk,)))
 
+@login_required
 def idea_rating(request: HttpRequest, pk: str, is_like: str) -> HttpResponse:
     """Рейтинг идеи"""
     idea = models.Ideas.objects.get(id=int(pk))
@@ -185,9 +217,19 @@ def idea_rating(request: HttpRequest, pk: str, is_like: str) -> HttpResponse:
 
     return redirect(reverse("idea_detail", args=(pk,)))
 
+@login_required
 def rooms(request):
     return render(request, "django_app/rooms.html", context={"rooms": models.Room.objects.all()})
 
+@login_required
+def create_room(request):
+    if request.method == "GET":
+        return render(request, "django_app/create_room.html")
+    elif request.method == "POST":
+        name = request.POST.get('name')
+        slug = request.POST.get('slug')
+    models.Room.objects.create(name=name, slug=slug)
+    return redirect('rooms')
 
 @login_required
 def room(request, slug):
@@ -204,6 +246,7 @@ headers = {
                   'Chrome/102.0.0.0 Safari/537.36'
 }
 
+@login_required
 def news(request):
     """Вывод новостей с использованием кеша"""
     cached_data = cache.get('news_data')
@@ -229,12 +272,14 @@ class ProductRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         pk = self.kwargs.get('pk')
         return get_object_or_404(models.Product, pk=pk)
 
+@login_required
 def send_email(request):
     if request.method == 'POST':
         generate_and_email_pdf.delay()
 
     return render(request, 'django_app/home.html')
 
+@login_required
 def vacancy(request):
     """Подача и просмотр идей для улучшения бизнеса"""
     if request.method == 'GET':
@@ -248,6 +293,7 @@ def vacancy(request):
     else:
         raise ValueError("Invalid method")
 
+@login_required
 def vacancy_list(request: HttpRequest) -> HttpResponse:
     """Отображение списка идей с пагинацией"""
 
@@ -258,6 +304,7 @@ def vacancy_list(request: HttpRequest) -> HttpResponse:
     current_page = paginator.get_page(selected_page)
     return render(request, "django_app/vacancy_list.html", context={"current_page": current_page})
 
+@login_required
 def vacancy_detail(request, pk:str):
     """Отображение детальной информации идеи"""
     vacancy = RamCache.get(f"vacancy_detail_{pk}")
@@ -267,6 +314,7 @@ def vacancy_detail(request, pk:str):
     return render(request, "django_app/vacancy_detail.html",
                   context={"vacancy": vacancy, "is_detail_view": True})
 
+@login_required
 def vacancy_delete(request, pk):
     """Удаление идеи"""
     if request.method != "GET":
@@ -276,7 +324,7 @@ def vacancy_delete(request, pk):
     vacancy.delete()
     return redirect(reverse("vacancy_list"))
 
-
+@login_required
 def vacancy_update(request, pk: str):
     """Обновление существующей идеи"""
 
@@ -294,6 +342,7 @@ def vacancy_update(request, pk: str):
     else:
         raise ValueError("Invalid method")
 
+@login_required
 def resume(request):
     """Подача и просмотр идей для улучшения бизнеса"""
     if request.method == 'GET':
@@ -308,6 +357,7 @@ def resume(request):
     else:
         raise ValueError("Invalid method")
 
+@login_required
 def resume_list(request: HttpRequest) -> HttpResponse:
     """Отображение списка идей с пагинацией"""
 
@@ -318,6 +368,7 @@ def resume_list(request: HttpRequest) -> HttpResponse:
     current_page = paginator.get_page(selected_page)
     return render(request, "django_app/resume_list.html", context={"current_page": current_page})
 
+@login_required
 def add_hr_rating(request, pk):
     if request.method == 'POST':
         new_rating = request.POST.get('rating')
@@ -334,6 +385,7 @@ def add_hr_rating(request, pk):
         # Перенаправляем пользователя на страницу резюме
         return redirect('resume_detail', pk=pk)
 
+@login_required
 def resume_detail(request, pk):
     resume = RamCache.get(f"resume_detail_{pk}")
     if resume is None:
@@ -341,6 +393,19 @@ def resume_detail(request, pk):
         RamCache.set(f"resume_detail_{pk}", resume, timeout=30)
 
     return render(request, "django_app/resume_detail.html", context={"resume": resume, "is_detail_view": True})
+
+# def api(request):
+#     users = User.objects.all()
+
+    # users = User.objects.values()
+    # data = JsonResponse(list(users), safe=False)
+    # print(data)
+    # return data
+from .serializers import UserSerializer
+def api(request):
+    users = User.objects.all()
+    user_list = [{'id': user.id, 'username': user.username} for user in users]
+    return JsonResponse(user_list, safe=False)
 
 # views.py
 from django.http import HttpResponse

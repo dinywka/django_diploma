@@ -2,109 +2,80 @@
 {% load static %}
 {% block main %}
 
-<article
-  class="rounded-lg border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-lg sm:p-6"
->
-  <a class="text-gray-500 transition hover:text-gray-500/75" href="{% url "ideas_list" %}">Вернуться к общему списку</a>
+<section class="bg-gray-100">
+  <div class="container mx-auto p-4">
+    <a class="text-blue-500 hover:text-blue-700" href="{% url "ideas_list" %}">Back to Idea List</a>
 
-  <a href="#">
-    <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-      {{ idea.title }}
-    </h3>
-  </a>
+    <div class="mt-8 p-8 bg-white rounded-lg shadow-md">
+      <a href="#">
+        <h3 class="text-2xl font-bold text-gray-900">{{ idea.title }}</h3>
+      </a>
 
-  <p class="mt-2 line-clamp-3 text-sm/relaxed text-gray-500">
-  {{ idea.description }}
-  </p>
+      <p class="mt-4 text-sm text-gray-600">{{ idea.description }}</p>
 
-    {% if user.is_authenticated %}
-        <div class="d-flex gap-2 justify-content-center py-1">
-            <div class="input-group">
-            <button class="btn border border-dark border-1 d-inline-flex align-items-center" type="button">
-                {% if ratings.total == 0 %}
-                    <p class="text-dark">
-                    0 ({{ ratings.total }} оценок)
-                    </p>
-                {% elif ratings.total > 0 %}
-                    <p class="text-success">
-                    {{ ratings.total }} ({{ rating.total }} оценки)
-                    </p>
-                {% else %}
-                    <p class="text-danger">
-                    {{ ratings.total }} ({{ rating.total }} оценки)
-                    </p>
-                {% endif %}
+      {% if user.is_authenticated %}
+        <div class="flex items-center justify-between mt-6">
+          <div class="flex items-center space-x-2">
+            <button class="bg-blue-500 text-white px-3 py-1 rounded">
+              {% if ratings.total == 0 %}
+                0 ({{ ratings.total }} ratings)
+              {% elif ratings.total > 0 %}
+                {{ ratings.total }} ({{ rating.total }} ratings)
+              {% else %}
+                {{ ratings.total }} ({{ rating.total }} ratings)
+              {% endif %}
             </button>
-                {% if user.is_authenticated %}
-                    <a href="{% url "idea_rating" idea.id 'лайк' %}"
-                        class="{% if my_rule == 1 %} bg-green-500 text-white
-                        {% else %} border border-green-500 text-green-500 bg-white
-                        {% endif %} inline-flex items-center m-1 p-1">
-                        <i class="fas fa-thumbs-up"></i>{{ ratings.like }}
-                    </a>
 
-                <a href="{% url "idea_rating" idea.id 'дизлайк' %}"
-                    class="{% if my_rule == 1 %} bg-red-500 text-white
-                        {% else %} border border-red-500 text-red-500 bg-white
-                        {% endif %} inline-flex items-center m-1 p-1">
-                        <i class="fas fa-thumbs-up"></i>{{ ratings.dislike }}
-                </a>
-            {% endif %}
-            </div>
+            <a href="{% url "idea_rating" idea.id 'like' %}" class="bg-green-500 text-white px-3 py-1 rounded">
+              <i class="fas fa-thumbs-up"></i>{{ ratings.like }}
+            </a>
+
+            <a href="{% url "idea_rating" idea.id 'dislike' %}" class="bg-red-500 text-white px-3 py-1 rounded">
+              <i class="fas fa-thumbs-down"></i>{{ ratings.dislike }}
+            </a>
+          </div>
         </div>
-    {% endif %}
-</article>
-
-    <div class="container px-4 py-5 bg-light card" id="hanging-icons">
-        <h2 class="pb-2 border-bottom">Комментарии:</h2>
-         {% if user.is_authenticated %}
-            <form action="{% url "idea_comment_create" idea.id %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <h1 class="h3 mb-3 fw-normal text-center">Ваш комментарий:</h1>
-            <label
-              for="UserEmail"
-              class="relative block overflow-hidden rounded-md border border-gray-200 px-3 pt-3 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
-            >
-              <input
-                      name="text"
-                type="text"
-                id="UserEmail"
-                placeholder="Я считаю..."
-                class="peer h-8 w-full border-none bg-transparent p-0 placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
-              />
-            </label>
-            <button class="inline-block rounded border border-indigo-600 px-12 py-3 text-sm font-medium text-indigo-600 hover:bg-indigo-600 hover:text-white focus:outline-none focus:ring active:bg-indigo-500" type="submit">Создать</button>
-            </form>
-         {% endif %}
-    </div>
-    <hr/>
-
-    <div class="comment-list row g-4 py-5 row-cols-1 row-cols-lg-3">
-        {% for comment in comments %}
-        <div class="col d-flex align-items-start">
-            <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-                <svg class="bi" width="1em" height="1em"><use xlink:href="#toggles2"></use></svg>
-            </div>
-            <div>
-                <h3 class="fs-2 text-body-emphasis">{{ comment.author.username }}</h3>
-                <p>{{ comment.text }}</p>
-                <hr class="m-0 p-1"/>
-                <p class="text-secondary small">{{ comment.date_time }}</p>
-                <a href="#" class="group relative inline-block text-sm font-medium text-red-600 focus:outline-none focus:ring active:text-red-500">
-                    Пожаловаться!
-                </a>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col d-flex align-items-start">
-            <div>
-                <h3 class="fs-2 text-body-emphasis">Комментариев нет!</h3>
-                <p>Вы можете быть первыми!</p>
-            </div>
-        </div>
-
-        {% endfor %}
+      {% endif %}
     </div>
 
+    <div class="mt-8 p-4 bg-light rounded-lg">
+      <h2 class="text-2xl font-bold mb-4">Comments:</h2>
+      {% if user.is_authenticated %}
+        <form action="{% url "idea_comment_create" idea.id %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="commentInput" class="block mb-2 text-gray-700">Your Comment:</label>
+          <input
+            name="text"
+            type="text"
+            id="commentInput"
+            placeholder="I think..."
+            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-600"
+          />
+          <button class="mt-4 px-6 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300" type="submit">Create</button>
+        </form>
+      {% endif %}
+    </div>
+
+    <hr class="my-8 border-t-2 border-gray-300" />
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {% for comment in comments %}
+        <div class="p-4 bg-white rounded-lg shadow-md">
+          <h3 class="text-xl font-bold text-gray-800">{{ comment.author.username }}</h3>
+          <p class="mt-2 text-gray-600">{{ comment.text }}</p>
+          <hr class="my-2 border-t-2 border-gray-300" />
+          <p class="text-sm text-gray-500">{{ comment.date_time }}</p>
+          <a href="#" class="text-sm font-medium text-red-600 hover:text-red-700">Report</a>
+        </div>
+      {% empty %}
+        <div class="p-4 bg-white rounded-lg shadow-md">
+          <h3 class="text-xl font-bold text-gray-800">No comments yet!</h3>
+          <p class="mt-2 text-gray-600">Be the first one to comment!</p>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
 
 {% endblock main %}

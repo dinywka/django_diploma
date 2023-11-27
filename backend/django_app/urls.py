@@ -35,9 +35,12 @@ urlpatterns = [
 
     path('send_email/', views.send_email, name='send_email'),
 
+    path('api/', views.api, name='api'),
+
     # TODO:needs to be the last!!!
     path("rooms/", views.rooms, name="rooms"),
     path("<slug:slug>/", views.room, name="room"),
+    path('rooms/create', views.create_room, name="create_room")
 
 
 ]

@@ -1,13 +1,27 @@
 {% extends "components/base.html" %}
 {% load static %}
 {% block main %}
-<ul>
-        {% for room in rooms %}
-            <li>
-                <a href="/{{room.slug}}">{{room.name}}</a>
-            </li>
-        {% empty %}
-            <li>ни одной комнаты не создано!</li>
-        {% endfor %}
+
+<section class="bg-gray-100">
+  <div class="container mx-auto p-4">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Room List</h2>
+
+    <ul class="list-disc pl-4">
+      {% for room in rooms %}
+        <li class="mb-2">
+          <a href="/{{ room.slug }}" class="text-blue-500 hover:underline">{{ room.name }}</a>
+        </li>
+      {% empty %}
+        <li>No rooms created!</li>
+      {% endfor %}
     </ul>
+
+    <div class="mt-4">
+      <a href="{% url 'create_room' %}" class="inline-block px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300">
+        Create New Room
+      </a>
+    </div>
+  </div>
+</section>
+
 {% endblock main %}

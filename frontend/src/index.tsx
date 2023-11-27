@@ -10,8 +10,8 @@ import "./css/my.css";
 import reportWebVitals from './reportWebVitals';
 import './index.css';
 import About from "./pages/about";
-import Accounting from "./pages/accounting";
-// import Bot from "./pages/bot";
+
+
 
 
 
@@ -23,7 +23,7 @@ root.render(
   <Router>
     <Routes>
       <Route path="/" element={<About />}></Route>
-      <Route path="/accounting" element={<Accounting />}></Route>
+
         {/*<Route path="/bot" element={<Bot />}></Route>*/}
         {/*<Route path="/register" element={<Register />}></Route>*/}
     </Routes>
