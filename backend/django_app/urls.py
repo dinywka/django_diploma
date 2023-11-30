@@ -29,6 +29,7 @@ urlpatterns = [
     path('resume/list/', views.resume_list, name='resume_list'),
     path('resume/detail/<str:pk>/', views.resume_detail, name='resume_detail'),
     path('add_hr_rating/<str:pk>/', views.add_hr_rating, name='add_hr_rating'),
+    path('resume/<int:resume_id>/download/', views.download_resume, name='download_resume'),
 
     path('products/', ProductListCreateView.as_view(), name='product-list-create'),
     path('products/<int:pk>/', ProductRetrieveUpdateDestroyView.as_view(), name='product-retrieve-update-destroy'),

@@ -131,6 +131,7 @@ class Resume(models.Model):
         help_text='Введите рейтинг от 1 до 10.', blank=True, default=0
     )
     hr_comment = models.CharField(max_length=500, default='no comment')
+    resume_file = models.FileField(upload_to='resume_files/', null=True, blank=True)
 
     def update_hr_rating(self, new_rating, new_comment):
         self.hr_rating = new_rating

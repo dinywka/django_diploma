@@ -344,7 +344,6 @@ def vacancy_update(request, pk: str):
 
 @login_required
 def resume(request):
-    """Подача и просмотр идей для улучшения бизнеса"""
     if request.method == 'GET':
         return render(request, 'django_app/resume.html')
     elif request.method == 'POST':
@@ -352,10 +351,23 @@ def resume(request):
         age = request.POST.get('age', None)
         education = request.POST.get('education', None)
         skills = request.POST.get('skills', None)
-        models.Resume.objects.create(name=name, age=age, education=education, skills=skills)
+        resume_file = request.FILES.get('resume_file', None)
+
+        new_resume = models.Resume.objects.create(name=name, age=age, education=education, skills=skills, resume_file=resume_file)
+
         return redirect(reverse("resume_list"))
     else:
         raise ValueError("Invalid method")
+
+def download_resume(request, resume_id):
+    resume = get_object_or_404(models.Resume, id=resume_id)
+
+    if resume.resume_file:
+        response = HttpResponse(resume.resume_file.read(), content_type='application/pdf')  # Change the content type based on your file type
+        response['Content-Disposition'] = f'attachment; filename="{resume.resume_file.name}"'
+        return response
+    else:
+        return HttpResponse("Resume file not found.", status=404)
 
 @login_required
 def resume_list(request: HttpRequest) -> HttpResponse:
