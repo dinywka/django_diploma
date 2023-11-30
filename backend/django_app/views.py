@@ -127,7 +127,7 @@ def ideas_list(request: HttpRequest) -> HttpResponse:
 
     ideas = models.Ideas.objects.all()
     selected_page = request.GET.get(key="page", default=1)
-    limit_post_by_page = 3
+    limit_post_by_page = 4
     paginator = Paginator(ideas, limit_post_by_page)
     current_page = paginator.get_page(selected_page)
     return render(request, "django_app/ideas_list.html", context={"current_page": current_page})
@@ -299,7 +299,7 @@ def vacancy_list(request: HttpRequest) -> HttpResponse:
 
     vacancy = models.Vacancy.objects.all()
     selected_page = request.GET.get(key="page", default=1)
-    limit_post_by_page = 3
+    limit_post_by_page = 4
     paginator = Paginator(vacancy, limit_post_by_page)
     current_page = paginator.get_page(selected_page)
     return render(request, "django_app/vacancy_list.html", context={"current_page": current_page})
@@ -375,7 +375,7 @@ def resume_list(request: HttpRequest) -> HttpResponse:
 
     resume = models.Resume.objects.all()
     selected_page = request.GET.get(key="page", default=1)
-    limit_post_by_page = 3
+    limit_post_by_page = 4
     paginator = Paginator(resume, limit_post_by_page)
     current_page = paginator.get_page(selected_page)
     return render(request, "django_app/resume_list.html", context={"current_page": current_page})
