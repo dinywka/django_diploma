@@ -394,43 +394,20 @@ def resume_detail(request, pk):
 
     return render(request, "django_app/resume_detail.html", context={"resume": resume, "is_detail_view": True})
 
-# def api(request):
-#     users = User.objects.all()
 
-    # users = User.objects.values()
-    # data = JsonResponse(list(users), safe=False)
-    # print(data)
-    # return data
-from .serializers import UserSerializer
 def api(request):
     users = User.objects.all()
     user_list = [{'id': user.id, 'username': user.username} for user in users]
     return JsonResponse(user_list, safe=False)
 
-# views.py
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-from django.core import serializers
-import requests
 
-@csrf_exempt
-@require_POST
-def send_product_list(chat_id):
-    products = models.Product.objects.all()
-    product_data = serializers.serialize('json', products)
+class ProductListView(generics.ListAPIView):
+    queryset = models.Product.objects.all()
+    serializer_class = ProductSerializer
 
-    response = requests.post(
-        url=f"https://api.telegram.org/bot6481369847:AAGh4KSCeGFhZbW0Ny041ZGP_9_ygS-Rjjk/sendMessage",
-        json={"chat_id": chat_id, "text": product_data}
-    )
-
-    if response.status_code not in (200, 201):
-        print("Error")
-    else:
-        print(f"Product list sent successfully to user")
-
-    return HttpResponse(status=200)
+@login_required
+def react_page(request):
+    return render(request, 'django_app/index.html')
 
 
 

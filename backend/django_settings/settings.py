@@ -74,6 +74,8 @@ GRAPPELLI_ADMIN_TITLE = "Django app"
 
 #TODO: додедать!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
     "http://localhost:3000",  # Замените на адрес вашего фронтенда
     # "https://yourdomain.com",  # Замените на ваш домен
 ]
@@ -83,7 +85,7 @@ CORS_ALLOW_CREDENTIALS = True
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / "static", BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -162,25 +164,34 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "/static/"
-if DEBUG:
-    # режиме разработки: django "отдаёт" статику сам
-    STATICFILES_DIRS = [
-        Path(BASE_DIR / "static"),
-        Path(BASE_DIR / "static_external"),
-    ]
-else:
-    # режиме production(debug==false): nginx "отдаёт" статику
-    # collectstatic
-    STATIC_ROOT = Path(BASE_DIR / "static")
-    STATICFILES_DIRS = [
-        Path(BASE_DIR / "static_external"),
-    ]
+STATICFILES_DIRS = [
+    Path(BASE_DIR / "static/static"),
+    Path(BASE_DIR / "static"),
+
+
+]
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static_external')
+# if DEBUG:
+#     # режиме разработки: django "отдаёт" статику сам
+#     STATICFILES_DIRS = [
+#         Path(BASE_DIR / "build/static"),
+#         Path(BASE_DIR / "static"),
+#         # Path(BASE_DIR / "static_external"),
+#
+#     ]
+# else:
+#     # режиме production(debug==false): nginx "отдаёт" статику
+#     # collectstatic
+#     STATIC_ROOT = Path(BASE_DIR / "static")
+#     STATICFILES_DIRS = [
+#         Path(BASE_DIR / "static_external"),
+#     ]
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = "static/media"
 
 # STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static_external')
+
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'

@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import ProductListCreateView, ProductRetrieveUpdateDestroyView
+from .views import ProductListCreateView, ProductRetrieveUpdateDestroyView, ProductListView
 
 
 urlpatterns = [
@@ -36,6 +36,10 @@ urlpatterns = [
     path('send_email/', views.send_email, name='send_email'),
 
     path('api/', views.api, name='api'),
+
+    path('api/products/', ProductListView.as_view(), name='product-list'),
+
+    path('react-page/', views.react_page, name='react_page'),
 
     # TODO:needs to be the last!!!
     path("rooms/", views.rooms, name="rooms"),
