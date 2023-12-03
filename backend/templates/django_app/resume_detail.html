@@ -20,10 +20,10 @@
         <p class="text-sm text-gray-600">HR Comment: {{ resume.hr_comment }}</p>
 
         <!-- Rating and Comment Form -->
-        <form method="post" action="{% url 'add_hr_rating' resume.id %}">
+        <form id="hrRatingForm" method="post" action="{% url 'add_hr_rating' resume.id %}">
           {% csrf_token %}
           <label for="rating" class="block mt-2 text-sm font-medium text-gray-700">HR Rating:</label>
-          <input type="number" name="rating" min="1" max="10" required class="w-full px-4 py-2 mt-1 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200">
+          <input id="rating" type="number" name="rating" min="1" max="10" required class="w-full px-4 py-2 mt-1 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200">
 
           <label for="hrComment" class="block mt-2 text-sm font-medium text-gray-700">HR Comment:</label>
           <textarea
@@ -41,5 +41,11 @@
     </div>
   </div>
 </section>
+
+<script>
+  document.getElementById('hrRatingForm').addEventListener('submit', function () {
+    location.reload();
+  });
+</script>
 
 {% endblock main %}

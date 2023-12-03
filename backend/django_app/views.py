@@ -71,32 +71,7 @@ def login_f(request: HttpRequest) -> HttpResponse:
         return redirect(reverse("home"))
     else:
         raise ValueError("Invalid method")
-# from django.contrib.auth import authenticate, login
-# from rest_framework.decorators import api_view, permission_classes
-# from rest_framework.response import Response
-# from rest_framework.authtoken.models import Token
-# from rest_framework.permissions import AllowAny
-#
-#
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def login_f(request):
-#     if request.method == "POST":
-#         username = request.data.get("username")
-#         password = request.data.get("password")
-#
-#         user = authenticate(request, username=username, password=password)
-#
-#         if user is not None:
-#             login(request, user)
-#
-#             token, created = Token.objects.get_or_create(user=user)
-#
-#             return Response({'token': token.key, 'username': user.username})
-#
-#         return Response({'error': 'Логин или пароль неверные!'}, status=400)
-#
-#     return Response({'error': 'Метод не поддерживается!'}, status=400)
+
 
 @login_required
 def logout_f(request: HttpRequest) -> HttpResponse:
@@ -188,7 +163,7 @@ def idea_update(request, pk: str):
 
 @login_required
 def idea_comment_create(request: HttpRequest, pk: str) -> HttpResponse:
-    """Создание комментария."""
+    """Создание комментария к идее"""
 
     idea = models.Ideas.objects.get(id=int(pk))
     text = request.POST.get("text", "")
@@ -219,10 +194,12 @@ def idea_rating(request: HttpRequest, pk: str, is_like: str) -> HttpResponse:
 
 @login_required
 def rooms(request):
+    """Отображение списка комнат чата"""
     return render(request, "django_app/rooms.html", context={"rooms": models.Room.objects.all()})
 
 @login_required
 def create_room(request):
+    """Создание новой комнаты чата"""
     if request.method == "GET":
         return render(request, "django_app/create_room.html")
     elif request.method == "POST":
@@ -233,6 +210,7 @@ def create_room(request):
 
 @login_required
 def room(request, slug):
+    """Отображение комнаты чата"""
     room_obj = models.Room.objects.get(slug=slug)
     context = {"room": room_obj, "messages": models.Message.objects.filter(room=room_obj)[:25]}
     return render(
@@ -274,6 +252,7 @@ class ProductRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 @login_required
 def send_email(request):
+    """Отправка письма со сиском товаров со склада"""
     if request.method == 'POST':
         generate_and_email_pdf.delay()
 
@@ -344,6 +323,7 @@ def vacancy_update(request, pk: str):
 
 @login_required
 def resume(request):
+    """Срздание резюме"""
     if request.method == 'GET':
         return render(request, 'django_app/resume.html')
     elif request.method == 'POST':
@@ -360,6 +340,7 @@ def resume(request):
         raise ValueError("Invalid method")
 
 def download_resume(request, resume_id):
+    """Загрузка приложенного резюме"""
     resume = get_object_or_404(models.Resume, id=resume_id)
 
     if resume.resume_file:
@@ -371,7 +352,7 @@ def download_resume(request, resume_id):
 
 @login_required
 def resume_list(request: HttpRequest) -> HttpResponse:
-    """Отображение списка идей с пагинацией"""
+    """Отображение списка резюме с пагинацией"""
 
     resume = models.Resume.objects.all()
     selected_page = request.GET.get(key="page", default=1)
@@ -382,23 +363,22 @@ def resume_list(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def add_hr_rating(request, pk):
+    """Добавление комментария hr к резюме"""
     if request.method == 'POST':
         new_rating = request.POST.get('rating')
-        new_comment = request.POST.get('comment')
-
-        # Получаем резюме по ID
+        new_comment = request.POST.get('hr_comment')
         resume = models.Resume.objects.get(id=pk)
-
-        # Обновляем рейтинг и комментарий
         resume.update_hr_rating(new_rating, new_comment)
-
+        RamCache.delete(f"resume_detail_{pk}")
         messages.success(request, 'Рейтинг и комментарий успешно добавлены.')
-
-        # Перенаправляем пользователя на страницу резюме
         return redirect('resume_detail', pk=pk)
+
+
+
 
 @login_required
 def resume_detail(request, pk):
+    """Детальное отображение резюме"""
     resume = RamCache.get(f"resume_detail_{pk}")
     if resume is None:
         resume = models.Resume.objects.get(id=pk)
@@ -408,6 +388,7 @@ def resume_detail(request, pk):
 
 
 def api(request):
+    """Вывод списка зарегистртрованных пользователей с frontend через api"""
     users = User.objects.all()
     user_list = [{'id': user.id, 'username': user.username} for user in users]
     return JsonResponse(user_list, safe=False)
@@ -419,6 +400,7 @@ class ProductListView(generics.ListAPIView):
 
 @login_required
 def react_page(request):
+    """Отображение страницы со списком зарегистртрованных пользователей с frontend через api"""
     return render(request, 'django_app/index.html')
 
 

@@ -130,13 +130,17 @@ class Resume(models.Model):
         ],
         help_text='Введите рейтинг от 1 до 10.', blank=True, default=0
     )
-    hr_comment = models.CharField(max_length=500, default='no comment')
+    hr_comment = models.CharField(max_length=500, default='no comment', null=True, blank=True)
     resume_file = models.FileField(upload_to='resume_files/', null=True, blank=True)
 
     def update_hr_rating(self, new_rating, new_comment):
+        print(f'New Rating: {new_rating}, New Comment: {new_comment}')
         self.hr_rating = new_rating
-        self.hr_comment = new_comment
+        self.hr_comment = new_comment if new_comment is not None and new_comment != '' else 'no comment'
         self.save()
+
+
+
 
 
 
